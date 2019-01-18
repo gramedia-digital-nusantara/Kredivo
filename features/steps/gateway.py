@@ -77,4 +77,4 @@ def step_impl(context):
 
 @then("i get response transaction status pending")
 def step_impl(context):
-    assert context.response_order_status.json().get("transaction_status") == "pending"
+    assert context.response_order_status.transaction_status == "pending"

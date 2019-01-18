@@ -76,3 +76,15 @@ class KredivoCheckoutEntity(SerializableMixin):
         self.push_uri = push_uri
         self.back_to_store_uri = back_to_store_uri
 
+
+class KredivoTransactionResponse(SerializableMixin):
+
+    def __init__(self, response):
+        json_response = response.json()
+        self.response = self.api_response(response)
+        for key in json_response:
+            setattr(self, key, json_response[key])
+
+    @staticmethod
+    def api_response(response):
+        return response

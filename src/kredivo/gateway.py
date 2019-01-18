@@ -5,7 +5,7 @@ from enum import Enum
 import requests
 from requests import HTTPError
 
-from kredivo.models import SerializableMixin
+from kredivo.models import SerializableMixin, KredivoTransactionResponse
 
 
 class KredivoGateway:
@@ -69,7 +69,7 @@ class KredivoGateway:
             headers=self._build_headers()
         )
 
-        return response
+        return KredivoTransactionResponse(response)
 
     def _confirm_push_notification(self):
         pass
