@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='kredivo',
-    version='0.1',
+    version='0.0.1',
     packages=['kredivo', ],
     package_dir={'': 'src'},
     url='',
