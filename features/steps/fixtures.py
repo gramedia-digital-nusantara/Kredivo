@@ -5,7 +5,7 @@ checkout_success_response = {
 }
 
 checkout_request_body = {
-    "server_key": "vxG8aGSUfgs9p9Fet88pqhzWk9bg3Z",
+    "server_key": "123",
     "payment_type": "30_days",
     "transaction_details": {
         "amount": 6505000,
@@ -127,4 +127,49 @@ transaction_status = {
     "transaction_status": "pending",
     "message": "Transaction is pending",
     "transaction_id": "4a95f337-f15d-4e4c-b0ac-2fefa47dbf63"
+}
+
+
+# https://doc.kredivo.com/#cancel-purchase
+cancel_transaction = {
+    "server_key": "123",
+    "order_id": "KD14721",
+    "transaction_id": "6febc2b2-ac4f-462c-9e7e-56fc5da05d91",
+    "cancellation_reason": "Out of stock",
+    "cancelled_by": "Althea",
+    "cancellation_date": "1501844808"
+}
+
+cancel_transaction_success = {
+    "status": "OK",
+    "fraud_status": "accept",
+    "order_id": "KD14721",
+    "transaction_time": 1542951231,
+    "amount": "1500000.00",
+    "payment_type": "30_days",
+    "transaction_status": "settlement",
+    "message": "Succes cancelling transaction by amount",
+    "transaction_id": "69fe07ca-e055-4877-828a-a201a6729163"
+}
+
+cancel_transaction_failed = {
+    "status": "ERROR",
+    "message": "Transaction is already cancelled.",
+    "fraud_status": "deny"
+}
+
+
+response_transaction_status = {
+    "status": "OK",
+    "legal_name": "TANDRA",
+    "fraud_status": "accept",
+    "order_id": "KD14721",
+    "transaction_time": 1501846094,
+    "amount": "1500100.00",
+    "payment_type": "30_days",
+    "transaction_status": "settlement",
+    "message": "Confirmed order status. Valid!",
+    "transaction_id": "fadee4e5-99a2-48d6-952d-007f3fa508e8",
+    "merchant_id": "KFC",
+    "outlet_id": "KFCSenayan"
 }

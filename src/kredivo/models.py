@@ -3,12 +3,23 @@ class SerializableMixin(object):
     An instance that can return a dictionary representation of it's
     properties by calling a serialize() method.
     """
+    __fields__ = []
+
+    def __init__(self, response):
+        self._original_response = response
+        for key in self.__fields__:
+            setattr(self, key, response.json()[key])
+
+    def __iter__(self):
+        for key in self.__fields__:
+            yield (key, 'Value for {}'.format(key))
+
     def serialize(self):
         """
         Returns a dictionary representation of an object
         """
         rv = {}
-        for key in self.__dict__:
+        for key in self.__fields__:
             val = getattr(self, key)
 
             if hasattr(val, 'serialize'):
@@ -21,10 +32,7 @@ class SerializableMixin(object):
 
 class TransactionDetail(SerializableMixin):
 
-    def __init__(self, amount, order_id, items):
-        self.amount = amount
-        self.order_id = order_id
-        self.items = items
+    __fields__ = ["amount", "order_id", "items"]
 
     def serialize(self):
         rv = super(TransactionDetail, self).serialize()
@@ -35,56 +43,29 @@ class TransactionDetail(SerializableMixin):
 
 
 class ItemDetail(SerializableMixin):
-
-    def __init__(self, id, name, price, type, quantity, url):
-        self.id = id
-        self.name = name
-        self.price = price
-        self.type = type
-        self.quantity = quantity
-        self.url = url
+    __fields__ = ["id", "name", "price", "type", "quantity", "url"]
 
 
 class CustomerDetail(SerializableMixin):
-
-    def __init__(self, first_name, last_name, email, phone):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.phone = phone
+    __fields__ = ["first_name", "last_name", "email", "phone"]
 
 
 class Address(SerializableMixin):
 
-    def __init__(self, first_name="", last_name="", address="", phone="", city="", country_code="", postal_code=""):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.address = address
-        self.phone = phone
-        self.city = city
-        self.country_code = country_code
-        self.postal_code = postal_code
+    __fields__ = ["first_name", "last_name", "address", "phone", "city", "country_code", "postal_code"]
 
 
 class KredivoCheckoutEntity(SerializableMixin):
-
-    def __init__(self, transaction_details, customer_details, push_uri, back_to_store_uri):
-        self.transaction_details = transaction_details
-        self.customer_details = customer_details
-        self.billing_address = Address()
-        self.shipping_address = Address()
-        self.push_uri = push_uri
-        self.back_to_store_uri = back_to_store_uri
+    __fields__ = ["transaction_details", "customer_details", "push_uri", "back_to_store_uri"]
 
 
 class KredivoTransactionResponse(SerializableMixin):
 
-    def __init__(self, response):
-        json_response = response.json()
-        self.response = self.api_response(response)
-        for key in json_response:
-            setattr(self, key, json_response[key])
+    __fields__ = ["status", "legal_name", "fraud_status", "order_id", "transaction_time", "external_userid",
+                 "amount", "payment_type", "transaction_status", "message", "transaction_id"]
 
-    @staticmethod
-    def api_response(response):
-        return response
+
+class CancelPurcaseResponse(SerializableMixin):
+
+    __fields__ = ["status", "fraud_status", "order_id", "transaction_time", "amount", "payment_type",
+                  "transaction_status", "message", "transaction_id"]
