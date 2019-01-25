@@ -9,16 +9,28 @@ from kredivo.models import SerializableMixin, KredivoTransactionResponse, Cancel
 
 
 class KredivoGateway:
+    """
+
+    """
     def __init__(self, server_key, use_sandbox=False):
         self.server_key = server_key
         self.use_sandbox = use_sandbox
 
     @property
     def base_url(self):
+        """
+
+        :return: `str` Kredivo URL SANDBOX or PRODUCTION
+        """
         return "https://sandbox.kredivo.com/kredivo" if self.use_sandbox \
             else "https://api.kredivo.com/kredivo"
 
     def checkout(self, request_data):
+        """
+
+        :param `dict` request_data:
+        :return: `objec` KredivoCheckoutResponse
+        """
         response = requests.post(url=f"{self.base_url}/v2/checkout_url",
                                  data=self.build_checkout_request_body(request_data),
                                  headers=self._build_headers())
@@ -29,9 +41,6 @@ class KredivoGateway:
             raise KredivoCheckoutError(**response.json()['error'])
 
         return KredivoCheckoutResponse.from_json(response)
-
-    def validate(self, request_data):
-        pass
 
     @staticmethod
     def _build_headers():
