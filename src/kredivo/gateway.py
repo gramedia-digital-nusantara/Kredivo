@@ -1,16 +1,19 @@
 import http
 import json
-from enum import Enum
 
 import requests
 from requests import HTTPError
 
-from kredivo.models import SerializableMixin, KredivoTransactionResponse, CancelPurcaseResponse
+from kredivo.exceptions import KredivoCancelOrderException, KredivoUnexpectedError, KredivoCheckoutError
+from kredivo.models import KredivoTransactionResponse, CancelPurchaseResponse, KredivoPaymentStatusResponse, \
+    KredivoStatus
+
+
+__all__ = ['KredivoGateway', ]
 
 
 class KredivoGateway:
-    """
-
+    """ This class for communication with Kredivo API
     """
     def __init__(self, server_key, use_sandbox=False):
         self.server_key = server_key
@@ -27,7 +30,6 @@ class KredivoGateway:
 
     def checkout(self, request_data):
         """
-
         :param `dict` request_data:
         :return: `objec` KredivoCheckoutResponse
         """
@@ -47,10 +49,9 @@ class KredivoGateway:
         return {'Content-Type': 'application/json', 'Accept': 'application/json', 'cache-control': "no-cache"}
 
     def build_checkout_request_body(self, request_data):
-        request_body = request_data
-        request_body['payment_type'] = '30_days'
-        request_body['server_key'] = self.server_key
-        return json.dumps(request_body)
+        request_data['server_key'] = self.server_key
+
+        return json.dumps(request_data)
 
     def check_payment_status(self, transaction_id, signature_key):
         """
@@ -71,7 +72,7 @@ class KredivoGateway:
     def transaction_status(self, order_id):
         """
         get status from Kredivo API
-        :param `int` order_id:  merchant order id
+        :param `string` order_id:  merchant order id
         :return: `object` KredivoTransactionResponse
         """
         body = {
@@ -79,7 +80,7 @@ class KredivoGateway:
             "order_id": order_id
         }
         response = requests.post(
-            url=f"{self.base_url}/v2/transaction/status",
+            url=f"{self.base_url}/transaction/status",
             data=json.dumps(body),
             headers=self._build_headers()
         )
@@ -112,75 +113,10 @@ class KredivoGateway:
             headers=self._build_headers()
         )
 
-        if response.json().get('status') == KredivoStatus.ERROR.name:
+        if response.json().get('status') == KredivoStatus.ERROR:
             return KredivoCancelOrderException(response.json())
 
-        return CancelPurcaseResponse(response)
-
-
-class KredivoCheckoutError(Exception):
-    def __init__(self, message, kind, **kwargs):
-        self.message = message if len(message) else "An unknown error occurred"
-        self.kind = kind
-        self.additional_error_attrs = kwargs
-
-    def __str__(self):
-        return "<KredivoCheckoutError(message={message}, kind={kind})>".format(**vars(self))
-
-
-class KredivoUnexpectedError(Exception):
-    def __init__(self, status_code, **kwargs):
-        self.message = "Kredivo doesn't response our checkout request"
-        self.status_code = status_code
-
-    def __str__(self):
-        return "<KredivoUnexpectedError(message={message}, status_code={status_code})>".format(**vars(self))
-
-
-class KredivoCancelOrderException(Exception):
-
-    def __init__(self, json_response, **kwargs):
-        if json_response.get("error"):
-            self.message = json_response.get("error").get("message")
-        else:
-            self.message = json_response.get("message")
-        self.status = json_response.get("status")
-
-    def __str__(self):
-        return "<KredivoCancelOrderException(message={message}, kind={kind})>".format(**vars(self))
-
-
-class KredivoStatus(Enum):
-    OK = "OK"
-    ERROR = "ERROR"
-
-
-class KredivoTransactionStatus(Enum):
-    """
-    Transaction status of a transaction, the values is:
-    CAPTURE: Transaction has been captured
-    SETTLEMENT: Transaction has been settled
-    PENDING: Transaction has not been completed
-    DENY: Transaction has been denied
-    CANCEL: Transaction has been cancelled
-    EXPIRE: Transaction has been expired
-    """
-    capture = "CAPTURE"
-    settlement = "SETTLEMENT"
-    pending = "PENDING"
-    deny = "DENY"
-    cancel = "CANCEL"
-    expire = "EXPIRE"
-
-
-class KredivoFraudStatus(Enum):
-    """
-    Detection result by Fraud Detection System (FDS), the values is:
-    ACCEPT: Approved by FDS
-    DENY: Denied by FDS. Transaction automatically failed
-    """
-    accept = "ACCEPT"
-    deny = "DENY"
+        return CancelPurchaseResponse(response)
 
 
 class KredivoCheckoutResponse(object):
@@ -200,10 +136,7 @@ class KredivoCheckoutResponse(object):
         :param `requests.Response` api_response:
         """
         resp_json = api_response.json()
-        status = KredivoStatus(resp_json.pop('status'))
+
+        status = KredivoStatus.OK if resp_json.pop('status') == 'OK' else KredivoStatus.ERROR
         return cls(status=status, **resp_json)
 
-
-class KredivoPaymentStatusResponse(SerializableMixin):
-    __fields__ = ["status", "legal_name", "fraud_status", "order_id", "transaction_time",
-                 "amount", "payment_type", "transaction_status", "message", "transaction_id"]

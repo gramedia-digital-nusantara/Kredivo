@@ -6,6 +6,7 @@ from requests import Response
 
 from features.steps import fixtures
 from kredivo import KredivoGateway
+from kredivo.models import KredivoStatus
 
 
 @given("a gateway with server key {server_key} sandbox is {sandbox}")
@@ -50,7 +51,7 @@ def step_impl(context):
 
 @then("i get response status OK")
 def step_impl(context):
-    assert context.response.status.value == http.HTTPStatus.OK.name
+    assert context.response.status == KredivoStatus.OK
 
 
 @given("Check status for Order id {order_id}")
