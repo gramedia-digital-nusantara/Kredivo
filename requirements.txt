@@ -4,3 +4,6 @@ requests==2.21.0
 # dev, build and testing requirements
 behave==1.2.6
 coverage==4.5.2
+
+bumpversion==0.5.3
+Sphinx==1.8.3
