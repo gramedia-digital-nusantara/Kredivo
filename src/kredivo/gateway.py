@@ -94,14 +94,14 @@ class KredivoGateway:
         pass
 
     def cancel_transaction(self, order_id, transaction_id, cancellation_reason,
-                           cancelled_by, cancellaction_date, cancellation_amount=None):
+                           cancelled_by, cancellation_date, cancellation_amount=None):
         body = {
             "server_key": self.server_key,
             "order_id": order_id,
             "transaction_id": transaction_id,
             "cancellation_reason": cancellation_reason,
             "cancelled_by": cancelled_by,
-            "cancellaction_date": cancellaction_date
+            "cancellation_date": cancellation_date
         }
 
         if cancellation_amount:
