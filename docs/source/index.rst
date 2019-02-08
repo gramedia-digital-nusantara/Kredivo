@@ -10,7 +10,7 @@ Welcome to Kredivo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   quickstart.rst
 
 Indices and tables
 ==================
